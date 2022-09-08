@@ -36,7 +36,6 @@ app.get('/searchCars', (req, res) =>{
 
 });
 
-
 app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`); // Start server
 });

@@ -2,7 +2,7 @@
 var check = require('./utils.js');
 
 const express = require("express"); // Import express package
-const { http, https } = require('follow-redirects');
+const axios = require('axios');
 
 const app = express() // Instance
 const hostname = '127.0.0.1'; // Setup server
@@ -22,31 +22,20 @@ app.get('/searchCars', (req, res) =>{
   let priceto = req.query.priceto;
   let fuel = req.query.fuel;
   
-  console.log(manufacturer)
+  async function doGetRequest() {
 
   // Create json path to query
-  let jsonPath = `/lst${ check.isUndefinedOrNull(manufacturer) ? "/"+manufacturer : "" }${check.isUndefinedOrNull(model) ? "/"+model : ""}${ check.isUndefinedOrNull(cap) ? "/"+cap : "" }.json`;
+  let jsonPath = `/_next/data/as24-search-funnel_main-3062/lst${ check.isUndefinedOrNull(manufacturer) ? "/"+manufacturer : "" }${check.isUndefinedOrNull(model) ? "/"+model : ""}${ check.isUndefinedOrNull(cap) ? "/"+cap : "" }.json`;
   // Eval query params
   let queryParams = "?sort=standard&desc=0&cy=I&atype=C&ustate=N%2CU&powertype=kw&search_id=1hmexvriz5"+encodeURIComponent(`${ check.isUndefinedOrNull(agefrom) ? "&fregfrom="+agefrom : "" }${ check.isUndefinedOrNull(ageto) ? "&fregto="+ageto : "" }${ check.isUndefinedOrNull(kmfrom) ? "&kmfrom="+kmfrom : "" }${ check.isUndefinedOrNull(kmto) ? "&kmto="+kmto : "" }${ check.isUndefinedOrNull(range) ? "&zipr="+range : "" }${ check.isUndefinedOrNull(cap) ? "&zip="+cap : "" }${ check.isUndefinedOrNull(pricefrom) ? "&pricefrom="+pricefrom : "" }${ check.isUndefinedOrNull(priceto) ? "&priceto="+priceto : "" }${ check.isUndefinedOrNull(fuel) ? "&fuel="+fuel : "" }`);
+    let response = await axios.get("https://www.autoscout24.it" + jsonPath + queryParams);
+    res.json(response.data);
+  }
   
+  doGetRequest();
 
-  const options = {
-    scheme: "https",
-    hostname: "www.autoscout24.it",
-    path: jsonPath+queryParams,
-    headers:{
-      'Content-Type': 'application/json'
-    }
-  };
-
-  console.log(options);
-
-  const autoScoutApi = http.request(options,(res)=>{
-    res.on('data', (cars) => {
-      console.log(JSON.parse(cars));
-    });
-  }).end();
 });
+
 
 app.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`); // Start server
